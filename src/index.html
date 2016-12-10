@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Map Designer</title>
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/g.css">
+    <link rel="stylesheet" href="css/codemirror.css">
+    <link rel="stylesheet" href="css/monokai.css">
+    <link rel="stylesheet" href="css/inlet.css">
+    <link rel="stylesheet" href="index.css">
+  </head>
+  <body style="padding: 0; margin: 0; overflow: hidden; width: 100vw; height: 100vh;">
+
+    <div id="splash"><i class="fa fa-spin fa-spinner fa-2x"></i></div>
+
+    <div id="app-tab" style="display: none">
+
+      <a id="btn-open" class="app-tab-item" href="javascript:;"><i class="fa fa-bars"></i></a>
+
+      <a id="btn-save" class="app-tab-item" href="javascript:;"><i class="fa fa-cloud-upload"></i></a>
+
+      <div id="info-success" class="app-tab-item info" style="display:none"><i class="fa fa-check"></i></div>
+
+      <a id="btn-print" class="app-tab-item" href="javascript:;" disabled="disabled"><i class="fa fa-print"></i></a>
+
+      <a id="btn-sign-out" class="app-tab-item" href="javascript:;" style="position: absolute; bottom: 0;"><i class="fa fa-sign-out"></i></a>
+
+    </div>
+
+    <div id="app-content" style="display: none">
+
+      <div id="main">
+        <div id="map-content">
+          <div id="map-container"></div>
+          <div id="map-info">
+            分辨率[res] = <span id="res"></span>
+          </div>
+          <div id="map-controller">
+            <ul>
+                <!--<li><a id="btn-zoom-to" href="javascript:;"><i class="fa fa-map-marker"></i></a></li>-->
+                <li><a id="btn-zoom-in" href="javascript:;"><i class="fa fa-plus"></i></a></li>
+
+                <li><a id="btn-zoom-out" href="javascript:;"><i class="fa fa-minus"></i></a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="config-content">
+          <div id="config-controller">
+            <div id="div-query">
+              <input id="input-query" type="text" class="form-control">
+            </div>
+
+            <ul>
+                <li><a id="btn-undo" href="javascript:;"><i class="fa fa-mail-reply"></i></a></li>
+
+                <li><a id="btn-redo" href="javascript:;"><i class="fa fa-mail-forward"></i></a></li>
+
+                <li><a id="btn-refresh" href="javascript:;"><i class="fa fa-refresh"></i></a></li>
+
+                <li><a id="btn-help" href="javascript:;"><i class="fa fa-question fa-lg"></i></a></li>
+            </ul>
+          </div>
+
+          <div id="config-help" style="display: none">
+            <h3>帮助</h3>
+            <dl>
+              <dt>原理</dt>
+              <dd>Map Designer会从服务器下载矢量瓦片数据、图标等内容，在本地进行渲染。因此，在浏览一个从未浏览过的地方时，开始会有一个缓慢的加载过程，请耐心等待。</dd>
+            </dl>
+
+            <dl>
+              <dt>字体</dt>
+              <dd>目前可用的字体有“Microsoft Yahei”(微软雅黑)、“Songti”(宋体)、“Kaiti”(楷体)、“Libian”(隶书)。</dd>
+            </dl>
+
+            <dl>
+              <dt>颜色</dt>
+              <dd>在颜色值上点击可以调出颜色选择器，如下图：</dd>
+              <dd><img src="img/help-color.png" style="width: 240px; margin: 8px;"></dd>
+            </dl>
+
+            <dl>
+              <dt>折叠</dt>
+              <dd>点击编辑器左侧的行数可以折叠大括号{ }包围的内容，方便浏览。</dd>
+            </dl>
+            
+            <dl>
+              <dt>可配置的样式</dt>
+              <dd>
+
+                <table>
+                  <thead>
+                    <tr>
+                      <th>属性</th><th>说明</th><th>作用范围</th><th>默认值</th><th>可取值</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    <tr>
+                      <td>background_color</td><td>地图背景色</td><td>地图</td><td></td><td></td>
+                    </tr>
+                    <tr>
+                      <td>background_image</td><td>地图背景纹理（相对icon目录）</td><td>地图</td><td></td><td></td>
+                    </tr>
+                    <tr>
+                      <td>background_opacity</td><td>地图背景透明度</td><td>地图</td><td>1</td><td></td>
+                    </tr>
+                    <tr>
+                      <td>icon</td><td>图标目录</td><td>地图</td><td>"icon/base"</td><td></td>
+                    </tr>
+
+                    <tr>
+                      <td>antialias</td><td>抗锯齿</td><td>所有图层</td><td>"true"</td><td>"true" "false"</td>
+                    </tr>
+                    <tr>
+                      <td>visible</td><td>是否绘制</td><td>所有图层</td><td>"true"</td><td>"true" "false"</td>
+                    </tr>
+                    <tr>
+                      <td>res_max</td><td>图层可显示的最大分辨率</td><td>所有图层</td><td></td><td></td>
+                    </tr>
+                    <tr>
+                      <td>res_min</td><td>图层可显示的最小分辨率</td><td>所有图层</td><td></td><td></td>
+                    </tr>
+                    <tr>
+                      <td>symbol_type</td><td>绘制的符号类型</td><td>所有图层</td><td></td><td>"raster" "fill" "line" "marker" "label" "line_label" "polygon_label"</td>
+                    </tr>
+                    <tr>
+                      <td>comppse-operation</td><td>当前图层如何与下面图层融合</td><td>所有图层</td><td>"SrcOver"</td><td>"src" "dst" "SrcOver" "DstOver" "SrcIn" "DstIn" "SrcOut" "DstOut"
+  "SrcATop" "DstATop" "Xor" "Plus" "Modulate" "Screen" "Overlay" "Darken"
+  "Lighten" "ColorDodge" "ColorBurn" "HardLight" "SoftLight" "Difference"
+  "Exclusion" "kMultiply" "Hue" "Saturation" "Color" "Luminosity"</td>
+                    </tr>
+                    <tr>
+                      <td>outline_color</td><td>外边线颜色</td><td>所有图层</td><td></td><td></td>
+                    </tr>
+                    <tr>
+                      <td>outline_opacity</td><td>外边线透明度</td><td>所有图层</td><td></td><td></td>
+                    </tr>
+
+                    <tr>
+                      <td>marker_color</td><td>标记的颜色</td><td>标记图层</td><td>"#000000"</td><td></td>
+                    </tr>
+                    <tr>
+                      <td>marker_opacity</td><td>标记的透明度</td><td>标记图层</td><td>1</td><td></td>
+                    </tr>
+                    <tr>
+                      <td>marker_image</td><td>标记的填充纹理</td><td>标记图层</td><td></td><td></td>
+                    </tr>
+                    <tr>
+                      <td>marker_shape</td><td>标记的形状</td><td>标记图层</td><td>"point"</td><td>"circle" "square" "point"</td>
+                    </tr>
+                    <tr>
+                      <td>marker_size</td><td>标记的尺寸</td><td>标记图层</td><td>5</td><td></td>
+                    </tr>
+                    <tr>
+                      <td>marker_offset_x</td><td>标记的水平偏移</td><td>标记图层</td><td>0</td><td></td>
+                    </tr>
+                    <tr>
+                      <td>marker_offset_x</td><td>标记的垂直偏移</td><td>标记图层</td><td>0</td><td></td>
+                    </tr>
+                    <tr>
+                      <td>allow_overlap</td><td>允许互相遮盖</td><td>标记图层</td><td>1</td><td></td>
+                    </tr>
+
+                    <tr>
+                      <td>line_color</td><td>线的颜色</td><td>线图层</td><td>"#000000"</td><td></td>
+                    </tr>
+                    <tr>
+                      <td>line_opacity</td><td>线的透明度</td><td>线图层</td><td>1</td><td></td>
+                    </tr>
+                    <tr>
+                      <td>line_image</td><td>线的填充纹理</td><td>线图层</td><td></td><td></td>
+                    </tr>
+                    <tr>
+                      <td>line_width</td><td>线宽</td><td>线图层</td><td>1</td><td></td>
+                    </tr>
+                    <tr>
+                      <td>line_join</td><td>线折角样式</td><td>线图层</td><td>"miter"</td><td>"miter" "round" "bevel"</td>
+                    </tr>
+                    <tr>
+                      <td>line_cap</td><td>线端点样式</td><td>线图层</td><td>"butt"</td><td>"butt" "round" "square"</td>
+                    </tr>
+                    <tr>
+                      <td>line_dasharray</td><td>线虚线样式</td><td>线图层</td><td></td><td>数组，如[10, 5]</td>
+                    </tr>
+
+                    <tr>
+                      <td>fill_color</td><td>多边形的填充色</td><td>多边形图层</td><td>"#0000ff"</td><td></td>
+                    </tr>
+                    <tr>
+                      <td>fill_opacity</td><td>多边形的透明度</td><td>多边形图层</td><td>1</td><td></td>
+                    </tr>
+                    <tr>
+                      <td>fill_image</td><td>多边形的填充纹理</td><td>多边形图层</td><td></td><td></td>
+                    </tr>
+
+                    <tr>
+                      <td>label_text_font</td><td>标注的字体</td><td>标注图层</td><td></td><td>可选字体</td>
+                    </tr>
+                    <tr>
+                      <td>label_text_size</td><td>标注的大小</td><td>标注图层</td><td>12</td><td></td>
+                    </tr>
+                    <tr>
+                      <td>label_text_color</td><td>标注的颜色</td><td>标注图层</td><td>"#000000"</td><td></td>
+                    </tr>
+                    <tr>
+                      <td>label_text_opacity</td><td>标注的透明度</td><td>标注图层</td><td>1</td><td></td>
+                    </tr>
+                    <tr>
+                      <td>label_text_outline_color</td><td>标注的外边线颜色</td><td>标注图层</td><td>"#ffffff"</td><td></td>
+                    </tr>
+                    <tr>
+                      <td>label_text_outline_width</td><td>标注的外边线宽度</td><td>标注图层</td><td>5</td><td></td>
+                    </tr>
+                    <tr>
+                      <td>label_text_outline_opacity</td><td>标注的外边线透明度</td><td>标注图层</td><td>1</td><td></td>
+                    </tr>
+                    <tr>
+                      <td>label_field</td><td>标注的字段</td><td>标注图层</td><td></td><td></td>
+                    </tr>
+                    <tr>
+                      <td>label_icon</td><td>标注的图标</td><td>标注图层</td><td></td><td></td>
+                    </tr>
+                    <tr>
+                      <td>label_text_spacing</td><td>标注的字符间距</td><td>标注图层</td><td>0</td><td></td>
+                    </tr>
+                    <tr>
+                      <td>label_max_line_length</td><td>标注的最大长度，超出则换行</td><td>标注图层</td><td></td><td></td>
+                    </tr>
+                    <tr>
+                      <td>label_margin_x</td><td>标注的横向间距</td><td>标注图层</td><td>0</td><td></td>
+                    </tr>
+                    <tr>
+                      <td>label_margin_y</td><td>标注的纵向间距</td><td>标注图层</td><td>0</td><td></td>
+                    </tr>
+                    <tr>
+                      <td>label_align</td><td>标注的对齐方式</td><td>标注图层</td><td>"center|left|right|top|<br>bottom|top-left|top-right|<br>bottom-left|bottom-right"</td><td>可选部分位置标注，如"top|bottom"表示只能在上下位置绘制</td>
+                    </tr>
+
+                  </tbody>
+                </table>
+
+              </dd>
+            </dl>
+          </div>
+
+          <div id="config-editor"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div id="list-modal" class="modal">
+      <div class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-body">
+        
+            <div class="text-center">
+              <div id="div-search">
+                <input id="input-search" type="text" class="form-control" placeholder="地图名称...">
+              </div>
+
+              <div id="div-page">
+                <ul>
+                  <li id="btn-prev" class="btn btn-circle" disabled><a href="javascript:;"><i class="fa fa-chevron-left"></i></a></li>
+
+                  <li id="btn-refresh" class="btn btn-circle"><a href="javascript:;"><i class="fa fa-refresh"></i></a></li>
+                  
+                  <li id="btn-next" class="btn btn-circle" disabled><a href="javascript:;"><i class="fa fa-chevron-right"></i></a></li>
+
+                  <li id="btn-add" class="btn btn-circle" disabled><a href="javascript:;"><i class="fa fa-plus"></i></a></li>
+
+                </ul>
+              </div>
+            </div>
+            
+            <div id="div-list">
+              <ul class="list">
+              </ul>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div id="print-modal" class="modal">
+      <div class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-body">
+        
+            <div id="preview-content">
+              <img id="img-preview" style="background-image: url(img/transparent.png)" />
+            </div>
+
+            <div id="setting-content">
+
+              <div>
+                <div class="row">
+                  <span class="label">宽</span>
+                  <input id="input-width" value="600" type="number" min="100" step="100"> px
+                </div>
+
+                <div class="row">
+                  <span class="label">高</span>
+                  <input id="input-height" value="900" type="number" min="100" step="100"> px
+                </div>
+
+                <div class="row">
+                  <span class="label">DPI</span>
+                  <select id="select-dpi">
+                    <option value="72">72 （普通）</option>
+                    <option value="144">144 （视网膜屏）</option>
+                    <option value="360">360 （印刷）</option>
+                    <option value="720">720 （高清印刷）</option>
+                  </select>
+                </div>
+
+                <div id="print-controller" class="row">
+                  <span class="label"><i id="loading" class="fa fa-spin fa-spinner" style="display:none"></i></span>
+                  <a id="btn-ok" class="btn" download="打印地图.png" href="javascript:;"><i class="fa fa-download"></i> 保存打印</a>
+                  <a class="btn" href="javascript:{$('#print-modal').hide();}">关闭</a>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div id="confirm-modal" class="modal">
+      <div class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-body">
+
+            <div id="message"></div>
+
+            <div id="controller">
+              <button id="btn-ok" class="btn btn-circle btn-danger" ><i class="fa fa-check"></i></button>
+              <button id="btn-cancel" class="btn btn-circle" onclick="$('#confirm-modal').hide();"><i class="fa fa-times"></i></button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="createmap-modal" class="modal">
+      <div class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-body">
+
+            <div class='title'>
+              <p>创建地图</p>
+            </div>
+            
+            <div class="map-fields" align="center">
+            <div class="map-field">
+              <label for="name" class="field-title">地图名称：</label>
+              <input type="text" id="name" name="name" />
+            </div>
+            <div class="map-field">
+              <label for="desc" class="field-title">地图描述：</label>
+              <input type="desc" id="desc" name="desc" />
+            </div>
+
+              <div id="controller">
+                <button id="btn-ok" class="btn btn-circle btn-default" onclick="createmap()" ><i class="fa fa-check"></i></button>
+                <button id="btn-cancel" class="btn btn-circle" onclick="$('#createmap-modal').hide();"><i class="fa fa-times"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/jquery.min.js"></script>
+    <script type="text/javascript">
+        window.$ = window.jQuery = module.exports;
+    </script>
+    <script src="js/jquery.form.js"></script>
+    <script src="js/jquery.noty.packaged.min.js"></script>
+    <script src="js/sha1.js"></script>
+    <script src="js/store.min.js"></script>
+    <script src="js/codemirror.js"></script>
+    <script src="js/codemirror-javascript.js"></script>
+    <script src="js/codemirror-foldcode.js"></script>
+    <script src="js/inlet.min.js"></script>
+    <script src="js/g.min.js"></script>
+    <script src="util.js"></script>
+    <script src="mapping.js"></script>
+    <script src="editor.js"></script>
+    <script src="index.js"></script>
+  </body>
+</html>
