@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Intelligent GIS",
   "main": "main.js",
+  "dev": true,
   "scripts": {
     "start": "electron ."
   },

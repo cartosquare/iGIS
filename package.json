@@ -6,6 +6,7 @@
     "type": "git",
     "url": "https://git.oschina.net/xiangxu/IGIS.git"
   },
+  
   "dependencies": {
     "restify": "^4.3.0",
     "sqlite3": "^3.1.8"
