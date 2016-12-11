@@ -5,6 +5,7 @@ var serverProcess = require('child_process').spawn(__dirname + '/bin/node', [__d
 var electron = require('electron');
 var app = electron.app;
 var BrowserWindow = electron.BrowserWindow;
+var ipc = require('electron').ipcMain;
 
 var path = require('path');
 var url = require('url');
@@ -101,7 +102,7 @@ function createWindow () {
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, 'index.html'),
+    pathname: path.join(__dirname, 'preloader.html'),
     protocol: 'file:',
     slashes: true
   }));
@@ -116,6 +117,14 @@ function createWindow () {
     mainWindow = null;
   });
 }
+
+ipc.on('open-dashboard', function() {
+  mainWindow.loadURL(url.format({
+    pathname: path.join(__dirname, 'index.html'),
+    protocol: 'file:',
+    slashes: true
+  }));
+});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>洪荒之力加载中</title>
+  </head>
+  <style>
+    @font-face {
+      font-family: OpenSansSemibold;
+      src: url('fonts/OpenSans/OpenSans-Semibold.ttf');
+    }
+    @keyframes orbit {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .pm-loader.is-exiting {
+      opacity: 0;
+    }
+
+    .pm-loader.is-hidden {
+      display: none;
+    }
+
+    body {
+      margin: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      position: absolute;
+    }
+
+    .pm-loader {
+      width: 100%;
+      height: 100%;
+      z-index: 300;
+      position: absolute;
+      background: #000;
+      transition: opacity 0.5s linear;
+    }
+
+    .pm-loader-text{
+      color: #ddd;
+      height: 70px;
+      font-size: 14px;
+      text-align: center;
+      position: relative;
+      -webkit-user-select: none;
+      font-family: OpenSansSemibold, sans-serif;
+    }
+
+    .pm-loader-text li {
+      opacity: 0;
+      display: none;
+      list-style: none;
+      transition: 0.5s;
+    }
+
+    .pm-loader-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .pm-loader-atoms {
+      width: 100px;
+      height: 100px;
+      display: flex;
+      position: relative;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pm-loader-center-atom {
+      top: 32px;
+      left: 32px;
+      width: 32px;
+      height: 32px;
+      position: absolute;
+      border-radius: 50%;
+      background-color: #ef5b25;
+    }
+
+    .pm-loader-orbit-1 {
+      top: 20px;
+      left: 20px;
+      width: 56px;
+      height: 56px;
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid #fff;
+    }
+
+    .pm-loader-orbit-2 {
+      top: 8px;
+      left: 8px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      position: absolute;
+      border: 1px solid #eee;
+    }
+
+    .pm-loader-orbit-3 {
+      top: -4px;
+      left: -4px;
+      width: 104px;
+      height: 104px;
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid #999;
+    }
+
+    .pm-loader-atom-1 {
+      width: 8px;
+      height: 8px;
+      margin-top: 4px;
+      margin-left: 4px;
+      border-radius: 50%;
+      background-color: #91cf60;
+      transform-origin: 24px 24px;
+      animation: orbit 1s infinite;
+      animation-timing-function: linear;
+      -webkit-transform-origin: 24px 24px;
+    }
+
+    .pm-loader-atom-2 {
+      width: 8px;
+      height: 8px;
+      margin-top: 8px;
+      margin-left: 8px;
+      border-radius: 50%;
+      background-color: #ffffbf;
+      transform-origin: 32px 32px;
+      animation: orbit 2s infinite;
+      animation-timing-function: linear;
+      -webkit-transform-origin: 32px 32px;
+    }
+
+    .pm-loader-atom-3 {
+      width: 8px;
+      height: 8px;
+      margin-top: 11px;
+      margin-left: 11px;
+      border-radius: 50%;
+      background-color: #fc8d59;
+      transform-origin: 41px 41px;
+      animation: orbit 3s infinite;
+      animation-timing-function: linear;
+      -webkit-transform-origin: 41px 41px;
+    }
+
+    .app-root {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: absolute;
+    }
+
+    .app-root.is-hidden {
+      display: none;
+    }
+  </style>
+  <body>
+    <div class='pm-loader'>
+        <div class="pm-loader-container">
+            <div class="pm-loader-text">
+                <li>Intelligent GIS...</li>
+                <li>可视化数据，效率极高，方式炫酷...</li>
+                <li>编辑配置文件来控制可视化的每一个细节...</li>
+                <li>快速打造属于自己的专属地图...</li>
+                <li>除了可视化，还可以统计、洞察，以GIS的方式...</li>
+            </div>
+            <div class='pm-loader-atoms'>
+                <div class='pm-loader-center-atom'></div>
+                <div class='pm-loader-orbit-1'><div class='pm-loader-atom-1'></div></div>
+                <div class='pm-loader-orbit-2'><div class='pm-loader-atom-2'></div></div>
+                <div class='pm-loader-orbit-3'><div class='pm-loader-atom-3'></div></div>
+            </div>
+        </div>
+    </div>
+    <div class='app-root'></div>
+    <script src="js/jquery.min.js"></script>
+    <script type="text/javascript">
+        window.$ = window.jQuery = module.exports;
+    </script>
+    <script type="text/javascript" src="js/preloader.js"></script>
+    <script type="text/javascript" src="switch_url.js"></script>
+  </body>
+</html>
