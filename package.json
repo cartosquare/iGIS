@@ -1,0 +1,25 @@
+{
+  "name": "IGIS",
+  "author": "Atlasxu",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://git.oschina.net/xiangxu/IGIS.git"
+  },
+  "dependencies": {
+    "restify": "^4.3.0",
+    "sqlite3": "^3.1.8"
+  },
+  "devDependencies": {
+    "electron-packager": "^5.0.1",
+    "electron": "1.4.1",
+    "gulp": "^3.9.0",
+    "gulp-appdmg": "^1.0.2",
+    "gulp-json-editor": "^2.2.1",
+    "gulp-sequence": "^0.3.2",
+    "gulp-shell": "^0.4.2",
+    "gulp-uglify": "^1.2.0",
+    "gulp-zip": "^3.0.2",
+    "plist": "^1.1.0"
+  }
+}

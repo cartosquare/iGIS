@@ -494,7 +494,7 @@ img.logo {
 
 #createmap-modal .field-title {
   font-size: 14px;
-  text-align: right;
+  text-align: left;
   float: left;
   padding-right: 10px;
   width: 100px;
@@ -592,6 +592,13 @@ img.logo {
 #list-modal .list-item-desc {
   margin-top: 4px;
   font-size: 11px;
+  color: #999;
+}
+
+#list-modal .list-item-time {
+  margin-top: 4px;
+  font-size: 11px;
+  text-align: right;
   color: #999;
 }
 
