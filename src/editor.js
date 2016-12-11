@@ -119,6 +119,9 @@ function notifyEditorStatus() {
 	// 	dirty: dirty
 	// });
 };
+CodeMirror.commands.autocomplete = function(cm) {
+  cm.showHint({hint: CodeMirror.hint.anyword});
+}
 
 var editor = CodeMirror(document.getElementById("config-editor"), {
 	mode: {
@@ -126,8 +129,11 @@ var editor = CodeMirror(document.getElementById("config-editor"), {
 		json: true
 	},
 	theme: 'monokai',
-	lineNumbers: true
+	lineNumbers: true,
+	styleActiveLine: true,
+	extraKeys: {"Alt-Space": "autocomplete"}
 });
+
 Inlet(editor, {
 	slider: false
 });
