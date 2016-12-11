@@ -32,6 +32,68 @@ function createWindow () {
     }
   });
 
+  // 创建系统菜单
+  if (process.platform == 'darwin') {
+    var template = [{
+      label: packageJson.name,
+      submenu: [{
+        label: '关于 ' + packageJson.name,
+        selector: 'orderFrontStandardAboutPanel:'
+      }, {
+        type: 'separator'
+      }, {
+        label: '退出',
+        accelerator: 'CmdOrCtrl+Q',
+        selector: 'terminate:'
+      }]
+    }, {
+      label: '编辑',
+      submenu: [{
+        label: '撤销',
+        accelerator: 'CmdOrCtrl+Z',
+        selector: 'undo:'
+      }, {
+        label: '重做',
+        accelerator: 'Shift+CmdOrCtrl+Z',
+        selector: 'redo:'
+      }, {
+        type: 'separator'
+      }, {
+        label: '剪切',
+        accelerator: 'CmdOrCtrl+X',
+        selector: 'cut:'
+      }, {
+        label: '拷贝',
+        accelerator: 'CmdOrCtrl+C',
+        selector: 'copy:'
+      }, {
+        label: '粘贴',
+        accelerator: 'CmdOrCtrl+V',
+        selector: 'paste:'
+      }, {
+        label: '全选',
+        accelerator: 'CmdOrCtrl+A',
+        selector: 'selectAll:'
+      }]
+    }, {
+      label: '视图',
+      submenu: [{
+        label: '刷新',
+        accelerator: 'CmdOrCtrl+R',
+        click: function() {
+          mainWindow.webContents.session.clearCache(function() {
+            mainWindow.webContents.reloadIgnoringCache();
+          });
+        }
+      }]
+    }];
+    var Menu = electron.Menu;
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+  }
+
+  // 最大化窗口
+  mainWindow.maximize();
+
   // dev状态下打开开发者工具
   if (packageJson.dev) {
     mainWindow.webContents.openDevTools();
@@ -62,20 +124,5 @@ app.on('ready', createWindow);
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+  app.quit()
 });
-
-app.on('activate', function () {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (mainWindow === null) {
-    createWindow()
-  }
-});
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
