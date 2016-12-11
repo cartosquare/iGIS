@@ -107,7 +107,7 @@ function listMap(req, res, next) {
 
     var items_per_page = 5;
     var start_item = page * items_per_page;
-    var end_item = start_item + items_per_page;
+    var end_item = start_item + items_per_page - 1;
 
     var result = {
         'items': [],
