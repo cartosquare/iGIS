@@ -57,7 +57,7 @@ function refreshMappingList() {
     },
     error: function(xhr, textStatus, errorThrown) {
       $('#list-modal #btn-refresh .fa').removeClass('fa-spin');
-      console.error("Error: " + textStatus + " / " + JSON.stringify(errorThrown));
+      showError('refresh mapping list fail', true);
     },
     success: function(data, textStatus) {
       $('#list-modal #btn-refresh .fa').removeClass('fa-spin');
@@ -172,7 +172,7 @@ function createmap() {
       desc: mapDesc
     },
     error: function(xhr, textStatus, errorThrown) {
-      console.error("Error: " + textStatus + " / " + JSON.stringify(errorThrown));
+      showError('create map fail', true);
     },
     success: function(data, textStatus) {
       data = JSON.parse(data);
@@ -194,7 +194,7 @@ function deleteMap() {
     url: 'http://localhost:3000/deleteMap/' + mappingUid,
     type: 'POST',
     error: function(xhr, textStatus, errorThrown) {
-      console.error("Error: " + textStatus + " / " + JSON.stringify(errorThrown));
+      showError('delete map fail', true);
     },
     success: function(data, textStatus) {
       data = JSON.parse(data);
