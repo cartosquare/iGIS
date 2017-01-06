@@ -139,7 +139,7 @@ function createmap() {
   var mapDesc = $('#createmap-modal #desc').val();
   
   var mapdef = '{\
-  "background_color": [100, 100, 100],\
+  "background_color": "argb(255,100,100,100)",\
   "data_sources": {\
     "admin": {\
       "source": "datasource/admin",\
@@ -155,8 +155,8 @@ function createmap() {
           "res_max": 156544,\
           "res_min": 0,\
           "symbol_type": "fill",\
-          "fill_color": [255, 0, 0],\
-          "outline_color": [255, 255, 255]\
+          "fill_color": "argb(255,100,100,100)",\
+          "outline_color": "#ffff00ff"\
         }\
       ]\
     }\

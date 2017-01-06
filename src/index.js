@@ -84,8 +84,7 @@ $('#btn-save').bind('click', function() {
   $("#btn-save").attr('disabled', '');
 
   var text = editor.getValue();
-  var obj = JSON.parse(text);
-  var defObj = toRenderObj(obj);
+  var defObj = JSON.parse(text);
 
   /*
   for (var i in defObj['data_sources']) {

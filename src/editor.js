@@ -1,116 +1,3 @@
-
-var colorFields = [
-	'background_color',
-	'marker_color',
-	'label_background_color',
-	'label_text_color',
-	'label_text_outline_color',
-	'line_color',
-	'outline_color',
-	'outline_opacity',
-	'fill_color'
-];
-
-var colorArrayFields = [];
-//var colorArrayFields = ['ramp_color'];
-
-function colorHex(r, g, b) {
-	function hex(x) {
-		return ('0' + parseInt(x).toString(16)).slice(-2);
-	}
-	return '#' + hex(r) + hex(g) + hex(b);
-};
-
-function colorRgb(hex) {
-	function num(h, start, end) {
-		if (!h.substring) {
-			return;
-		}
-
-		var n = parseInt(h.substring(start, end), 16);
-		if (end - start === 2) {
-			return n;
-		} else {
-			return (256 - (16 - n) * (16 - n));
-		}
-	}
-
-	if (hex.length < 5) {
-		return [num(hex, 1, 2), num(hex, 2, 3), num(hex, 3, 4)];
-	} else {
-		return [num(hex, 1, 3), num(hex, 3, 5), num(hex, 5, 7)];
-	}
-};
-
-function colorsToEditor(obj) {
-	if (!isObject(obj)) {
-		return obj;
-	}
-
-	var newObj = $.extend({}, obj);
-
-	for (var key in newObj) {
-		if (colorFields.indexOf(key) >= 0) {
-			var rgb = newObj[key];
-			newObj[key] = colorHex(rgb[0] || 0, rgb[1] || 0, rgb[2] || 0);
-		} else if (colorArrayFields.indexOf(key) >= 0) {
-			for (var i in newObj[key]) {
-				var rgb = newObj[key][i];
-				newObj[key][i] = colorHex(rgb[0] || 0, rgb[1] || 0, rgb[2] || 0);
-			}
-		} else {
-			if (isArray(newObj[key])) {
-				for (var i in newObj[key]) {
-					newObj[key][i] = colorsToEditor(newObj[key][i]);
-				}
-			} else {
-				newObj[key] = colorsToEditor(newObj[key]);
-			}
-		}
-	}
-
-	return newObj;
-};
-
-function colorsToRender(obj) {
-	if (!isObject(obj)) {
-		return obj;
-	}
-
-	var newObj = $.extend({}, obj);
-
-	for (var key in newObj) {
-		if (colorFields.indexOf(key) >= 0) {
-			var hex = newObj[key];
-			newObj[key] = colorRgb(hex);
-		} else if (colorArrayFields.indexOf(key) >= 0) {
-			for (var i in newObj[key]) {
-				var hex = newObj[key][i];
-				newObj[key][i] = colorRgb(hex);
-			}
-		} else {
-			if (isArray(newObj[key])) {
-				for (var i in newObj[key]) {
-					newObj[key][i] = colorsToRender(newObj[key][i]);
-				}
-			} else {
-				newObj[key] = colorsToRender(newObj[key]);
-			}
-		}
-	}
-
-	return newObj;
-};
-
-function toEditorObj(renderObj) {
-	return colorsToEditor(renderObj);
-};
-
-
-function toRenderObj(editorObj) {
-	return colorsToRender(editorObj);
-};
-
 function notifyEditorStatus() {
 	var historySize = editor.historySize();
 	var dirty = historySize.undo || historySize.redo;
@@ -119,6 +6,7 @@ function notifyEditorStatus() {
 	// 	dirty: dirty
 	// });
 };
+
 CodeMirror.commands.autocomplete = function(cm) {
   cm.showHint({hint: CodeMirror.hint.anyword});
 }
@@ -133,11 +21,6 @@ var editor = CodeMirror(document.getElementById("config-editor"), {
 	styleActiveLine: true,
 	extraKeys: {"Alt-Space": "autocomplete"}
 });
-
-Inlet(editor, {
-	slider: false
-});
-$('.inlet_slider').hide(); // 禁用数值slider
 
 var editorTimer;
 editor.on('change', function(e) {
@@ -177,7 +60,7 @@ var foldFunc = CodeMirror.newFoldFunction(CodeMirror.braceRangeFinder);
 editor.on("gutterClick", foldFunc);
 
 function refreshEditor() {
-	var editorObj = toEditorObj(mappingDefObj);
+	var editorObj = mappingDefObj;
 	var text = JSON.stringify(editorObj, null, 2) + '\n'; // 多加一个空行，确保滚动后能看到所有文本
 
 	editor.setValue(text);
