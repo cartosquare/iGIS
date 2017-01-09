@@ -1,5 +1,5 @@
 // REST 服务
-var serverProcess = require('child_process').spawn(__dirname + '/bin/node', [__dirname + '/server/server.js']);
+var serverProcess = require('child_process').spawn(__dirname + '/bin/node', [__dirname + '/map-server/main.js']);
 
 // app and main window
 var electron = require('electron');

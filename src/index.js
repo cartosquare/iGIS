@@ -46,7 +46,7 @@ $('#btn-setting').bind('click', function () {
   $('#createmap-modal #btn-ok').unbind();
   $('#createmap-modal #btn-ok').bind('click', function () {
     $.ajax({
-      url: 'http://localhost:3000/updateMap/' + mappingUid,
+      url: styleServerUrl + 'updateMap/' + mappingUid,
       type: 'POST',
       data: {
         id: mappingUid,
@@ -86,29 +86,19 @@ $('#btn-save').bind('click', function() {
   var text = editor.getValue();
   var defObj = JSON.parse(text);
 
-  /*
-  for (var i in defObj['data_sources']) {
-    var ds = defObj['data_sources'][i];
-
-    if (ds.type == 'vector_tile') {
-      ds.source = ds.source.substring(ds.source.indexOf('vt/') + 3);
-      ds.type = 'cloud_vector_tile';
-      local.resources.vts.push(ds.source);
-    }
-  }
-  */
   defObj.init = {
     center: map.getCenter(),
     res: map.getResolution(),
     rotate: map.getRotate()
   };
 
+  mappingDef = text;
   //var size = map.getSize();
   var mapname = $('#' + mappingUid + ' .list-item-name').text();
   var mapdesc = $('#' + mappingUid + ' .list-item-desc').text();
 
   $.ajax({
-    url: 'http://localhost:3000/updateMap/' + mappingUid,
+    url: styleServerUrl + 'updateMap/' + mappingUid,
     type: 'POST',
     data: {
       id: mappingUid,
@@ -133,8 +123,7 @@ $('#btn-save').bind('click', function() {
     
       editor.clearHistory();
 
-      versionID = versionID + 1;
-      refreshRender()
+      refreshRender();
     }
   })
 });

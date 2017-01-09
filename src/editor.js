@@ -63,6 +63,9 @@ function refreshEditor() {
 	var editorObj = mappingDefObj;
 	var text = JSON.stringify(editorObj, null, 2) + '\n'; // 多加一个空行，确保滚动后能看到所有文本
 
+	// used to get tiles
+	mappingDef = JSON.stringify(editorObj);
+
 	editor.setValue(text);
 	editor.clearHistory();
 
@@ -146,6 +149,11 @@ $('#input-query').bind('keyup', function(e) {
 	} else {
 		selectAndScroll(query);
 	}
+});
+
+$('#btn-apply').bind('click', function() {
+	mappingDef = editor.getValue();
+	refreshRender();
 });
 
 $('#btn-redo').bind('click', function() {

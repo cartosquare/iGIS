@@ -1,5 +1,3 @@
-var port = 3000;
-
 const path = require('path')
 const url = require('url')
 
@@ -8,8 +6,11 @@ var mappingName;
 var mappingLod;
 var mappingDef;
 var mappingDefObj;
-var versionID = 0;
+var defID;
 var currentPage = 0;
+
+var styleServerUrl = 'http://localhost:3000/';
+var tileServerUrl = 'http://localhost:3000/';
 
 var shapeLayer;
 
@@ -21,7 +22,7 @@ function refreshMapping() {
   $('#btn-refresh').addClass('fa-spin');
   
   $.ajax({
-    url: 'http://localhost:3000/mapDef/' + mappingUid,
+    url: styleServerUrl + 'mapDef/' + mappingUid,
     type: 'GET',
     error: function(xhr, textStatus, errorThrown) {
       $('#btn-refresh').removeClass('fa-spin');
@@ -30,6 +31,7 @@ function refreshMapping() {
     success: function(data, textStatus) {
       $('#btn-refresh').removeClass('fa-spin');
 
+      mappingDef = data;
       mappingDefObj = JSON.parse(data);
       if (mappingDefObj.init && mappingDefObj.init.center && mappingDefObj.init.res) {
         map.zoomRes(mappingDefObj.init.center, mappingDefObj.init.res);
@@ -50,7 +52,7 @@ function refreshMappingList() {
   $('#list-modal #div-list ul').empty();
 
   $.ajax({
-    url: 'http://localhost:3000/listMap',
+    url: styleServerUrl + 'listMap',
     type: 'POST',
     data: {
       page: currentPage
@@ -112,8 +114,26 @@ function refreshRender() {
     shapeLayer.remove();
   }
 
-  shapeLayer = new G.Layer.Tile('http://localhost:' + port + '/mapTile/' + mappingUid +  '/{z}/{x}/{y}' + '?data=' + versionID);
-  shapeLayer.addTo(map);
+  $.ajax({
+    url: tileServerUrl + 'config',
+    type: 'POST',
+    data: {
+      def: mappingDef
+    },
+    error: function(xhr, textStatus, errorThrown) {
+      showError('config fail', true);
+    },
+    success: function(data, textStatus) {
+      //data = JSON.parse(data);
+      if (data.error) {
+        showError('config fail', true);
+      } else {
+        defID = data.mapID;
+        shapeLayer = new G.Layer.Tile(tileServerUrl + 'vis/' + data.mapID +  '/{z}/{x}/{y}');
+        shapeLayer.addTo(map);
+      }
+    }
+  });
 };
 
 function refreshPrint() {
@@ -126,7 +146,9 @@ function refreshPrint() {
 
   var mapCenter = map.getCenter();
   var mapRes = map.getResolution();
-  var url = 'http://localhost:' + port + '/staticMap/' + mappingUid //
+
+
+  var url = tileServerUrl + '/staticMap/' + defID //
     + '?cx=' + mapCenter[0] + '&cy=' + mapCenter[1] + '&res=' + mapRes //
     + '&width=' + w + '&height=' + h + '&retinaFactor=' + retinaFactor;
 
@@ -156,7 +178,7 @@ function createmap() {
           "res_min": 0,\
           "symbol_type": "fill",\
           "fill_color": "argb(255,100,100,100)",\
-          "outline_color": "#ffff00ff"\
+          "outline_color": "hex(#ffff00ff)"\
         }\
       ]\
     }\
@@ -164,7 +186,7 @@ function createmap() {
 }';
   
   $.ajax({
-    url: 'http://localhost:3000/createMap',
+    url: styleServerUrl + 'createMap',
     type: 'POST',
     data: {
       name: mapName,
@@ -185,13 +207,11 @@ function createmap() {
       $('#createmap-modal').hide()
     }
   });
-
-  
 }
 
 function deleteMap() {
   $.ajax({
-    url: 'http://localhost:3000/deleteMap/' + mappingUid,
+    url: styleServerUrl + 'deleteMap/' + mappingUid,
     type: 'POST',
     error: function(xhr, textStatus, errorThrown) {
       showError('delete map fail', true);
