@@ -129,7 +129,7 @@ function refreshRender() {
         showError('config fail', true);
       } else {
         defID = data.mapID;
-        shapeLayer = new G.Layer.Tile(tileServerUrl + 'vis/' + data.mapID +  '/{z}/{x}/{y}');
+        shapeLayer = new G.Layer.Tile(tileServerUrl + 'vis/' + data.mapID +  '/{z}/{x}/{y}?retina=2');
         shapeLayer.addTo(map);
       }
     }
