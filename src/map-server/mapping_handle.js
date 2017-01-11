@@ -55,26 +55,6 @@ server.addHandle('/vis/:mapID/:z/:x/:y', 'get',  function(req, res, next) {
     });
 });
 
-server.addHandle('/:name/:z/:x/:y/:postfix', 'get', function(req, res, next) {
-    var params = req.params;
-    var mapName = params.name;
-    var z = parseInt(params.z) || 0;
-    var x = parseInt(params.x) || 0;
-    var y = parseInt(params.y) || 0;
-    var postfix = params.postfix || '.pb';
-
-    var key = gmap.vectorTileKey(mapName, z, x, y);
-    console.log('key ' + key);
-    gmap.mapStore.getFile(key, function(err, response, body) {
-        if (err) {
-            return next(new restify.InternalServerError('get file fail: ' + err));
-        } else {
-            res.end(body);
-        }
-        next();
-    });
-});
-
 server.addHandle('/staticMap/:mapID', 'get', function(req, res, next) {
     var params = req.params;
     var opts = {

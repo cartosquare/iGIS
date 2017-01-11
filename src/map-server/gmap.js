@@ -6,10 +6,17 @@ var gmap = require('node-gmap');
 
 var fs = require('fs');
 
-// map store
-var mapStore = require('./map_store');
-
 var shortid = require('shortid');
+
+var redis = require("redis");
+client = redis.createClient({
+    host: options.redis.host,
+    port: options.redis.port
+});
+
+client.on("error", function (err) {
+    console.log("Error " + err);
+});
 
 // Init log
 console.log("log level: " + options.logLevel);
@@ -24,7 +31,7 @@ gmap.registerPool(options.osmConn.name, options.osmConn.url, options.osmConn.ini
 
 // seaweed storage
 console.log("Resgist weed storage " + options.weed.host + ":" + options.weed.port + " ...")
-gmap.registerStorage(options.weed.host, '3000');
+gmap.registerStorage(options.weed.host, options.weed.port);
 
 // mapping template
 var globalLod = fs.readFileSync(options.mapDir + "/map/lod.json");
@@ -65,29 +72,18 @@ function findVectorTileDataSource(style) {
 }
 
 function tile(opts, cb) {
-    var vtile = new gmap.Map();
-    vtile.init(opts, function (err) {
+    gmap.tile(param, function (err, stream) {
         if (err) {
-            cb('init tile fail: ' + err);
+            cb('render tile fail: ' + err);
             return;
         } else {
-            vtile.tile(opts, function (err, stream) {
+            // TODO: change dataCenter here
+            mapStore.writeFile(stream, { dataCenter: "proto_tile", collection: opts.collection }, opts.key, function (err, reply) {
                 if (err) {
-                    cb('render tile fail: ' + err);
+                    cb('save tile fail: ' + err);
                     return;
                 } else {
-                    // TODO: change dataCenter here
-                    console.log('write file: ' + opts.key);
-                    console.log('file length: ' + stream.length);
-                    console.log('collection: ' + opts.collection);
-                    mapStore.writeFile(stream, { dataCenter: "dc1", collection: opts.collection }, opts.key, function (err, reply) {
-                        if (err) {
-                            cb('save tile fail: ' + err);
-                            return;
-                        } else {
-                            cb(null, stream)
-                        }
-                    });
+                    cb(null, stream)
                 }
             });
         }
@@ -102,8 +98,8 @@ function renderVectorTiles(vectorTiles, z, x, y, cb) {
         if (i < vectorTiles.length) {
             var vtPath = vectorTileKey(vectorTiles[i], z, x, y);
             console.log('render vector tile: ' + vtPath);
-            mapStore.hasFile(vtPath, function(err, find) {
-                if (err || !find) {
+            gmap.getFile(vtPath, function(err) {
+                if (err) {
                     // 重新生成 vector tile
                     console.log('regenerate vector tile');
                     var param = {
@@ -118,10 +114,10 @@ function renderVectorTiles(vectorTiles, z, x, y, cb) {
                         'bufferSize': options.bufferSize,
                         'retinaFactor': 1,
                         'renderLabel': true,
-                        'collection': vectorTiles[i],
-                        'key': vtPath
+                        'saveCloud': true,
+                        'tileURL': vtPath
                     };
-                    tile(param, function(err) {
+                    gmap.tile(param, function(err) {
                         if (err) {
                             cb(err);
                             return;
@@ -145,14 +141,12 @@ function renderVectorTiles(vectorTiles, z, x, y, cb) {
 function getBaseMap(mapName, z, x, y, retina, cb) {
     // 首先尝试从缓存中直接取瓦片
     var key = tileKey(mapName, z, x, y, retina);
-    console.log(key);
-    mapStore.getFile(key, function(err, response, body) {
+    gmap.getFile(key, function(err, stream) {
         if (err) {
             // 缓存中没有瓦片，需要生成
 
             // 首先生成Vector tile
             vectorTiles = findVectorTileDataSource(styleDefs[mapName]);
-            console.log(vectorTiles);
             renderVectorTiles(vectorTiles, z, x, y, function(err) {
                 if (err) {
                     console.log(err);
@@ -172,11 +166,10 @@ function getBaseMap(mapName, z, x, y, retina, cb) {
                         'bufferSize': options.bufferSize,
                         'retinaFactor': retina,
                         'renderLabel': true,
-                        'saveCloud': false,
-                        'collection': mapName,
-                        'key': key
+                        'tileURL': key,
+                        'saveCloud': true
                     };
-                    tile(param, function(err, stream) {
+                    gmap.tile(param, function(err, stream) {
                         if (err) {
                             cb(err);
                             return;
@@ -187,20 +180,19 @@ function getBaseMap(mapName, z, x, y, retina, cb) {
                 }
             });
         } else {
-            cb(null, body);
+            cb(null, stream);
         }
     });
 }
 
 module.exports.getBaseMap = getBaseMap;
 module.exports.vectorTileKey = vectorTileKey;
-module.exports.mapStore = mapStore;
 
 /*********************************************************/
 // visualize
 function config(style, cb) {
     var styleID = shortid.generate();
-    mapStore.putStyle(styleID, style, function(err) {
+    client.set(styleID, style, function (err, reply) {
         var result = {}
         if (err) {
             result['err'] = 1;
@@ -213,13 +205,11 @@ function config(style, cb) {
 }
 
 function getVis(styleID, z, x, y, retina, cb) {
-    var prefix = z + '_' + x + '_' + y;
-    console.log(prefix + '-- get style: ' + styleID);
-    mapStore.getStyle(styleID, function (err, style) {
+    client.get(styleID, function (err, style) {
         if (err || !style) {
             cb('get style fail!');
         } else {
-            console.log(prefix + '-- get style success, render vector tiles');
+            //console.log(prefix + '-- get style success, render vector tiles');
             // 生成瓦片
             var param = {
                 'fromFile': false,
@@ -237,30 +227,19 @@ function getVis(styleID, z, x, y, retina, cb) {
             };
             // 首先生成Vector tile
             vectorTiles = findVectorTileDataSource(style);
-            console.log(vectorTiles);
             renderVectorTiles(vectorTiles, z, x, y, function(err) {
                 if (err) {
                     console.log(err);
                     cb(err);
                 } else {
                     // 生成瓦片
-                    console.log(prefix + '-- generate raster tile...');
-                    var vtile = new gmap.Map();
-                    vtile.init(param, function (err) {
+                    gmap.tile(param, function (err, stream) {
                         if (err) {
-                            cb('init tile fail: ' + err);
+                            cb('render tile fail: ' + err);
                             return;
                         } else {
-                            console.log(prefix + '-- generate success');
-                            vtile.tile(param, function (err, stream) {
-                                if (err) {
-                                    cb('render tile fail: ' + err);
-                                    return;
-                                } else {
-                                    console.log(prefix + '-- tile success')
-                                    cb(null, stream);
-                                }
-                            });
+                            //console.log(prefix + '-- tile success')
+                            cb(null, stream);
                         }
                     });
                 }

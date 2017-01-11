@@ -2,7 +2,7 @@ var mapConfig = require('./config').options;
 var sqlite3 = require('sqlite3');
 var fs = require('fs');
 
-mapDB = new sqlite3.Database(mapConfig.mapDBPath);
+mapDB = new sqlite3.Database(mapConfig.mapDir + '/maps.db');
 
 exports.createTable = function() {
     mapDB.run(

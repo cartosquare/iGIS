@@ -1,16 +1,13 @@
 // 配置参数
 exports.options = {
-    mapDBPath: '/Users/xuxiang/mapping/maps.db',
-    version: '4.1.0',
-    port: 3000,
     mapDir: '/Users/xuxiang/mapping',
-    rawDEM: '/Users/xuxiang/mapping/rt/china.tif',
-    styleDB: '/Users/xuxiang/mapping/styles.db',
+    version: '0.1.0',
+    port: 3000,
     logLevel: 2,
     bufferSize: 32,
-    sqlConn: 'PG:dbname=g-default host=rdsu39qy77f37y4q07vuo.pg.rds.aliyuncs.com port=3433 user=projx password=Warren576642',
 
     vtConfig: ['vt_base', 'tourism', 'physical', 'natural_earth', 'river'],
+    
     styleConfig: ['shapefile', 'admin', 'adventure', 'agriculture', 'cool', 'dark', 'fresh', 'global_light', 'contrast', 'history', 'light', 'blue', 'midnight', 'night', 'vision', 'pencil', 'natural', 'pink', 'river', 'tourism', 'warm', 'chinese', 'history'],
     osmConn: {
         name: 'osm',
@@ -24,6 +21,11 @@ exports.options = {
     },
     weed: {
         host: 'localhost',
-        port: '9333'
+        port: '8888'
     }
 }
+
+//
+/*
+./weed server -dir="data" -filer=true -filer.redis.server="localhost:6379" -volume.max=1000 
+*/
